@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rohit Negi - AI Mentor</title>
+    <!-- Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Add this to your head section -->
+    <script src="https://sdk.resemble.ai/stable/resemble.js"></script>
+    <!-- Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      /* Custom scrollbar */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #1f2937;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 4px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+      }
+
+      /* Style to make textarea grow with content */
+      textarea {
+        field-sizing: content;
+        min-height: 50px;
+        max-height: 200px;
+      }
+
+      /* Light mode styles */
+      .light-mode {
+        --bg-primary: #ffffff;
+        --bg-secondary: #f3f4f6;
+        --text-primary: #111827;
+        --text-secondary: #4b5563;
+        --border-color: #e5e7eb;
+        --message-bg-user: #3b82f6;
+        --message-bg-ai: #e5e7eb;
+        --message-text-user: #ffffff;
+        --message-text-ai: #111827;
+        --input-bg: #ffffff;
+      }
+
+      /* Dark mode styles (default) */
+      .dark-mode {
+        --bg-primary: #111827;
+        --bg-secondary: #1f2937;
+        --text-primary: #f9fafb;
+        --text-secondary: #9ca3af;
+        --border-color: #374151;
+        --message-bg-user: #3b82f6;
+        --message-bg-ai: #374151;
+        --message-text-user: #ffffff;
+        --message-text-ai: #f9fafb;
+        --input-bg: #1f2937;
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        transition: background-color 0.3s, color 0.3s;
+      }
+
+      .sidebar {
+        background-color: var(--bg-secondary);
+      }
+
+      .chat-area {
+        background-color: var(--bg-primary);
+      }
+
+      .input-area {
+        background-color: var(--bg-secondary);
+        border-color: var(--border-color);
+      }
+
+      .message-user {
+        background-color: var(--message-bg-user);
+        color: var(--message-text-user);
+      }
+
+      .message-ai {
+        background-color: var(--message-bg-ai);
+        color: var(--message-text-ai);
+      }
+
+      .input-field {
+        background-color: var(--input-bg);
+        color: var(--text-primary);
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .sidebar {
+          position: fixed;
+          z-index: 50;
+          left: -100%;
+          transition: left 0.3s;
+        }
+
+        .sidebar.active {
+          left: 0;
+        }
+
+        .mobile-menu-btn {
+          display: block;
+        }
+
+        .header-content {
+          padding-left: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body class="dark-mode font-sans flex h-screen overflow-hidden">
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col chat-area overflow-hidden">
+      <!-- Header with dark/light mode toggle -->
+      <header
+        class="flex items-center justify-between p-4 border-b border-gray-700"
+      >
+        <div class="flex items-center space-x-4 header-content">
+          <div class="relative">
+            <img
+              class="w-12 h-12 rounded-full"
+              src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true"
+              alt="Rohit Negi AI"
+            />
+            <span
+              class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 border-2 border-gray-800"
+            ></span>
+          </div>
+          <div>
+            <h2 class="font-bold text-lg">Rohit Negi AI</h2>
+            <p class="text-xs text-green-400">Online</p>
+          </div>
+        </div>
+
+        <!-- Dark/Light mode toggle -->
+        <div class="flex items-center space-x-2">
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-700">
+            <i class="fas fa-moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Chat messages container -->
+      <div id="chat-container" class="flex-1 p-4 overflow-y-auto">
+        <!-- Initial Greeting from AI -->
+        <div class="flex items-start gap-3 mb-6">
+          <img
+            class="w-10 h-10 rounded-full"
+            src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true"
+            alt="AI Avatar"
+          />
+          <div class="message-ai p-4 rounded-lg max-w-2xl">
+            <p class="font-bold text-blue-400 mb-1">Rohit Negi AI</p>
+            <p class="whitespace-pre-wrap">
+              Hello dosto, kaise ho? Main hoon Rohit Negi, Apka AI mentor.
+              Chalo, maut ka khel shuru karte hai!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area p-4 border-t">
+        <form id="chat-form" class="flex max-md:flex-col items-end space-x-3">
+          <div class="flex-1 relative w-full">
+            <textarea
+              id="prompt-input"
+              class="input-field w-full rounded-lg p-3 outline-none ring-2 ring-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+              placeholder="Chat with Rohit bhaiya..."
+              rows="1"
+            ></textarea>
+            <button
+              id="clear-btn"
+              type="button"
+              class="absolute right-2 bottom-[18px] text-gray-400 hover:text-gray-600 hidden"
+            >
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          <div class="flex items-center justify-start gap-3 max-md:w-full">
+            <button
+              id="send-button"
+              type="submit"
+              class="h-[40px] w-[40px] bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-paper-plane"></i>
+            </button>
+            <button
+              id="tts-btn"
+              type="button"
+              class="h-[40px] w-[40px] bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg flex items-center justify-center"
+              title="Read last response"
+            >
+              <i class="fas fa-volume-up"></i>
+            </button>
+            <button
+              id="voice-btn"
+              class="h-[40px] w-[40px] bg-red-600 hover:bg-red-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-microphone"></i>
+            </button>
+          </div>
+        </form>
+        <p class="text-xs text-gray-400 mt-2 text-center">
+          Press Enter to send, Shift+Enter for new line
+        </p>
+      </div>
+    </main>
+
+    <script>
+      // DOM Elements
+      const chatContainer = document.getElementById("chat-container");
+      const chatForm = document.getElementById("chat-form");
+      const promptInput = document.getElementById("prompt-input");
+      const sendButton = document.getElementById("send-button");
+      const clearBtn = document.getElementById("clear-btn");
+      const voiceBtn = document.getElementById("voice-btn");
+      const ttsBtn = document.getElementById("tts-btn");
+      const themeToggle = document.getElementById("theme-toggle");
+      const sidebar = document.querySelector("aside");
+      const sidebarCloseBtn = document.querySelector(".sidebar-close-btn");
+
+      const GEMINI_API_KEY = "AIzaSyDKPvqE6sxFHfur0FJzig7m4h8SkuB2W0w"; // <-- PUT YOUR NEW KEY HERE
+
+      // Best practice: Use the latest recommended model
+      const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_API_KEY}`;
+
+      // Store the conversation history
+      let chatHistory = [];
+      let isListening = false;
+      let recognition = null;
+      let lastAIResponse = "";
+      let speechSynthesis = window.speechSynthesis;
+
+      const systemInstructionText = `You are a Rohit negi . you are mentor of software filled and  Data structure Algorithm Related  and you Post Graduate from IIT G, GATE-CSE'20 AIR - 202 india and 
+      Got Highest Placement in India of 2 Cr + in 2022 in UBER company. 
+
+
+      you are teaching in Hinglish. almost student is called to you bhaiya .
+      you also speaking English but most of time you talk in Hinglish.
+
+
+      you have full knowledge about  Data structure Algorithm Related and you teach   Data structure Algorithm related problem of many approach to student .
+      till now you have Knowledge About Development full stack , Mern stack , Data structure Algorithm , Low Level Design  , High Level, AI/ML working how to they work , Design and Blockchain.
+
+      you only reply according to your knowledge out of our knowledge if ask student question so repaly him to good way and say accroding to you like 
+      dost/bhai eske bare me abhi mujhe idea nhi hai . and according to you reply in good way 
+      
+      # You use this sentence for  (Rohit negi)  talks to student's  example: 
+      hello dosto kese ho .
+      hanji dosto kese ho.
+      cholo maut ka khel suru krte hai.
+      chijo ko shikha kya rocket science thodi hai.
+      esme kya rocket science tha.      
+      bhai me bhi bhul jata hu syntax to tum concept ko smjho.
+      behind the seen chije kam kese kr rhi hai vo important hai.
+      bhai revision kro , revision se tumhe chije lambe time tk yad rhti hai .
+      dosto start kre .
+
+       chalo suru krte hai.
+      chamak gya achhe se,
+      chamak gya achhe se to likh do chamak gya bhiaya,
+      agr smj aaya to comment kr do chamak gya bhaiya ,
+      hanji dosto kese ho ,
+
+
+
+
+      #your Teaching way is : 
+        1: Frist thought principle : you teach student like at basics and you help to student how they like think at first thought principle.
+      2: Honestly and  teach student to under the hood like good mentor.
+
+      # some about you
+      after doing a 1.5 year job and than start you for create a you own coder army so you start you start-up in 2023 that is CODER ARMY 
+      in this startup you teach software filled related or  Data structure Algorithm related tech to many   student .
+      You are Founder of Coder Army Startup.
+      
+
+
+      on this CODER Army you first lauch  Data structure Algorithm Playlist on Youtube in free of Cost .
+       on youtube your two channel's 
+       1. Rohit negi = youtube link is : https://www.youtube.com/@Rohit_Negi
+       2. Coder Army= youtube link is : https://www.youtube.com/@CoderArmy9
+
+       on Rohit negi channel on you Lauch your  Data structure Algorithm Playlist on Youtube in free of Cost .
+
+  now  Coder Army platform of  availabe it's website and App 
+  that link is here: 
+  website link: https://www.coderarmy.in/
+  App link: https://play.google.com/store/apps/details?id=com.rohit.negi&hl=en_IN&pli=1
+
+
+  your Social Media contact is 
+  Instagram:https://www.instagram.com/rohit_negi9/?hl=en,
+  Linkdin: https://in.linkedin.com/in/rohit-negi9
+  Twiter on x.com: https://x.com/rohit_negi9
+
+
+  on your Coder Army platform you Lauch till now Course are
+1: Nexus --------
+Description
+This will be complete LIVE course on Web Development and Blockchain from Beginner to Advance Level. It also include  Data structure Algorithm course which is pre-Recorded.
+Build robust web applications and secure blockchain solutions: Gain hands-on experience in HTML, CSS, JavaScript, and blockchain fundamentals. Master full-stack development and explore the potential of decentralized applications.
+Master the synergy between web and blockchain: This course equips you with the skills to create innovative solutions by combining the power of web development with the security and transparency of blockchain technology.
+Unlock new career opportunities: Learn to develop cutting-edge applications that leverage the potential of both web and blockchain. Gain in-demand skills and become a sought-after developer.
+ 
+
+No Prerequisite Required
+Course Start Date: 16 sep 2024
+Class Timing: 9-10 pm (Mon to Fri) LIVE
+Instructor: Rohit Negi
+Doubt Support: Discord Group
+Recording: It will be available after the class
+Industry Grade Projects
+
+
+Course Content
+
+1: Web Development
+
+● Basic of Internet
+
+● HTML
+
+● CSS
+
+● JAVASCRIPT
+
+● React JS
+
+● TypeScript
+
+● NODE JS
+
+● Express JS
+
+● MONGODB and Mongoose
+
+● Authentication and Authorization
+
+● WebSockets and WebRTC
+
+● API
+
+● Advance Projects with Deployment
+
+ 
+
+2: BlockChain
+● Blockchain Introduction
+● Cryptographic Foundations
+● Blockchain Internal Working
+● Ethereum and it’s Ecosystem
+● Solana client side apps
+
+● Smart Contracts
+
+● Solidity from Basic to Advance
+
+● Rust Basic to Advance
+
+● Advance Projects with Deployment
+
+3: Data Structure and Algorithm
+
+What is coding
+FlowChart
+Time & Space Complexity
+Variables & DataTypes in C++
+Operators, Conditionals & Loops Array,
+Searching Algorithms
+Sorting Algorithms
+Concepts Dynamic Arrays
+String
+Basic Maths & Pointers
+Standard Template Library
+Function & in-depth Knowledge of flow
+Recursion & Backtracking   
+Object Oriented Programming
+Linked List
+Stack & Queues
+Sliding Window Problems
+Bit Manipulation     
+Trees
+Heaps
+Divide & Conquer Technique
+Graphs
+Greedy Algorithms
+Dynamic Programming
+Hashing & Tries
+
+ Data structure Algorithm includes: Beginner friendly (No Pre-requisite Required)
+
+150+ hours Recorded Videos
+300+ Coding Questions (asked by Top Companies)
+Completion Certificate
+ 
+
+Other Feature: Recorded classes
+Course Start On: 16 September 2024 
+Course Validity: 3 Year 
+Programming Language: C++
+Course will be in Hinglis
+ 
+
+ 
+
+4: High Level Design: (start from 7 july 2025)
+
+
+1: Foundation & Basics (Theory + Mini Use Cases)
+
+What is System Design? Goals, Trade-Os, protocols
+CAP Theorem + Consistency vs Availability
+Architecture Patterns : Monolith vs Microservices
+HLD Approach: Interview Framework & Thinking Process
+Load Balancing + Horizontal vs Vertical Scaling
+Consistent Hashing
+Caching (Types, When/Where/Why)
+Database Design (SQL vs NoSQL, Sharding, Indexing)
+Messaging Queues, Pub-Sub, Kafka, Rabbit-MQ etc
+Scaling to Millions of Users
+Module 2: Real-World Features with Concepts
+
+Designing Authentication & Authorization
+Rate Limiting & API Gateway
+Building Rate Limiter (Leaky/Token Bucket etc)
+CDN + Static Content Delivery
+Monitoring, Logging & Health Checks
+Designing Search (Inverted Index, Ranking, Autocomplete)
+Notification System (Email/SMS/Push)
+Building File Upload System (Like Google Drive)
+Module 3: Complete System Design Problems
+
+Building URL Shortener like (Bit.ly)
+Building Instagram Feed Design
+Building Zomato/Swiggy
+Building YouTube (Video Service)
+Building WhatsApp/Chat App
+Building Google Docs (Collaborative Editing)
+Design Twitter
+5: Resume Making and Linkedin Profile Optimization
+
+course Link : https://rohittnegi.akamai.net.in/new-courses/4-web-development-block-chain
+
+1:  Data structure Algorithm Paid course  --------
+Description
+This is complete course of Data Structure and Algorithm. All the videos are prerecorded, you can watch them at your own pace and get all the required knowledge.
+
+What is coding
+FlowChart
+Time & Space Complexity
+Variables & DataTypes in C++
+Operators, Conditionals & Loops Array,
+Searching Algorithms
+Sorting Algorithms
+Concepts Dynamic Arrays
+String
+Basic Maths & Pointers
+Standard Template Library
+Function & in-depth Knowledge of flow
+Recursion & Backtracking   
+Object Oriented Programming
+Linked List
+Stack & Queues
+Sliding Window Problems
+Bit Manipulation     
+Trees
+Heaps
+Divide & Conquer Technique
+Graphs
+Greedy Algorithms
+Dynamic Programming
+Hashing & Tries
+
+This Course also includes: Beginner friendly (No Pre-requisite Required)
+150+ hours Recorded Videos
+300+ Coding Questions (asked by Top Companies)
+Linkedin Hack To Get Referral
+Completion Certificate
+
+Other Feature: Recorded classes
+Course Start On: 16 September 2024 
+Course Validity: 2 Year 
+Programming Language: C++
+       
+course Linke is https://rohittnegi.akamai.net.in/new-courses/5-data-structure-and-algorithm-course
+
+
+#Current you lauched
+ current you lauched your Low Level Design system Course on youtube channel Coder Army on free of Cost
+and this Low Level Design system course Teach to student your start-up Co-founder Aditya Tandon 
+
+Aditya Tandon is teach Low Level Desing on coder Army youtube channel 
+
+Aditya Tandon is Senior Software Developer with a passion for building scalable systems and crafting elegant algorithms. Beyond coding, I thrive as a mentor, sharing engineering knowledge to empower the next generation of developers. Committed to continuous learning, teaching, and inspiring others to grow in their technical journeys.
+
+Aditya Tandon social Media is
+instagram: https://www.instagram.com/adityatandon2?igsh=Zm1tcjN2N2U4MnZs
+Linkedin: https://in.linkedin.com/in/adityatandon2?trk=public_post-text;
+
+talk way of Aditya Tandon 
+Adiya Tandon is also Talk in Hinglish and some time English 
+use word by mostly Aditya is 
+right, 
+samaj aaya ,
+kese scaplable bna skte hai 
+Right.
+
+if user Asked to mujhe Aditya sir se qeustion pucchna hai ya bat krni hai so than  you reaply of  Aditya reply
+and some time you share aditiya social medial contact.`;
+
+      // Initialize the app
+      function init() {
+        // Check for speech synthesis support
+        if (!speechSynthesis) {
+          ttsBtn.disabled = true;
+          ttsBtn.title = "Text-to-speech not supported";
+        }
+
+        // Set up event listeners
+        setupEventListeners();
+
+        // Check preferred color scheme
+        if (
+          window.matchMedia &&
+          window.matchMedia("(prefers-color-scheme: light)").matches
+        ) {
+          document.body.classList.add("light-mode");
+          document.body.classList.remove("dark-mode");
+          themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        }
+      }
+
+      // Set up all event listeners
+      function setupEventListeners() {
+        // Form submission
+        chatForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          handleSendMessage();
+        });
+
+        // Enter key (but allow Shift+Enter for new lines)
+        promptInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSendMessage();
+          }
+        });
+
+        // Input field changes
+        promptInput.addEventListener("input", () => {
+          adjustTextareaHeight();
+          clearBtn.style.display = promptInput.value ? "block" : "none";
+        });
+
+        // Clear button
+        clearBtn.addEventListener("click", () => {
+          promptInput.value = "";
+          clearBtn.style.display = "none";
+          adjustTextareaHeight();
+          promptInput.focus();
+        });
+
+        // Voice recognition button
+        voiceBtn.addEventListener("click", toggleVoiceRecognition);
+
+        // Text-to-speech button
+        ttsBtn.addEventListener("click", readLastResponse);
+
+        // Theme toggle
+        themeToggle.addEventListener("click", toggleTheme);
+
+        // // Sidebar close button
+        // sidebarCloseBtn.addEventListener("click", () => {
+        //   sidebar.classList.remove('active');
+        // });
+      }
+
+      // Adjust textarea height based on content
+      function adjustTextareaHeight() {
+        promptInput.style.height = "auto";
+        promptInput.style.height = promptInput.scrollHeight + "px";
+      }
+
+      // Toggle between dark and light mode
+      function toggleTheme() {
+        if (document.body.classList.contains("dark-mode")) {
+          document.body.classList.remove("dark-mode");
+          document.body.classList.add("light-mode");
+          themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        } else {
+          document.body.classList.remove("light-mode");
+          document.body.classList.add("dark-mode");
+          themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+      }
+
+      // Toggle voice recognition
+      function toggleVoiceRecognition() {
+        if (!isListening) {
+          startVoiceRecognition();
+        } else {
+          stopVoiceRecognition();
+        }
+      }
+
+      // Start voice recognition
+      function startVoiceRecognition() {
+        const SpeechRecognition =
+          window.SpeechRecognition || window.webkitSpeechRecognition;
+
+        if (!SpeechRecognition) {
+          addMessageToChat(
+            "model",
+            "Voice recognition is not supported in your browser. Try Chrome or Edge."
+          );
+          return;
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = "en-US";
+
+        recognition.onstart = () => {
+          isListening = true;
+          voiceBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+          voiceBtn.classList.add("bg-red-500");
+          addMessageToChat("model", "Listening... Speak now!");
+        };
+
+        recognition.onresult = (event) => {
+          const transcript = event.results[0][0].transcript;
+          promptInput.value = transcript;
+          adjustTextareaHeight();
+          clearBtn.style.display = "block";
+          handleSendMessage();
+        };
+
+        recognition.onerror = (event) => {
+          console.error("Speech recognition error", event.error);
+          addMessageToChat("model", `Voice recognition error: ${event.error}`);
+          stopVoiceRecognition();
+        };
+
+        recognition.onend = () => {
+          stopVoiceRecognition();
+        };
+
+        recognition.start();
+      }
+
+      // Stop voice recognition
+      function stopVoiceRecognition() {
+        if (recognition) {
+          recognition.stop();
+        }
+        isListening = false;
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceBtn.classList.remove("bg-red-500");
+      }
+
+      let indianVoice = null;
+
+// Ensure voices are loaded properly
+function loadVoices() {
+  return new Promise((resolve) => {
+    let voices = speechSynthesis.getVoices();
+    if (voices.length) return resolve(voices);
+
+    speechSynthesis.onvoiceschanged = () => {
+      resolve(speechSynthesis.getVoices());
+    };
+  });
+}
+
+async function readLastResponse(){
+  if (!lastAIResponse) {
+    alert("No response to read yet.");
+    return;
+  }
+
+  if (speechSynthesis.speaking) {
+    speechSynthesis.cancel();
+    return;
+  }
+
+  const voices = await loadVoices();
+  console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
+
+  // 🔥 Use Google UK English Male
+  let selectedVoice = voices.find(v =>
+    v.name === "Google UK English Male"
+  );
+
+  if (!selectedVoice) {
+    alert("Google UK English Male not available.");
+    return;
+  }
+
+  const utterance = new SpeechSynthesisUtterance(lastAIResponse);
+  utterance.voice = selectedVoice;
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  utterance.volume = 1;
+
+  const ttsBtn = document.getElementById("ttsBtn");
+  if (ttsBtn) ttsBtn.innerHTML = '<i class="fas fa-stop"></i>';
+
+  utterance.onend = () => {
+    if (ttsBtn) ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+  };
+
+  speechSynthesis.speak(utterance);
+}
+
+
+
+
+      // Read the last AI response
+    //   function readLastResponse() {
+    //     if (!lastAIResponse) {
+    //       addMessageToChat("model", "No response to read yet.");
+    //       return;
+    //     }
+
+    //     if (speechSynthesis.speaking) {
+    //       speechSynthesis.cancel();
+    //       return;
+    //     }
+
+    //     const utterance = new SpeechSynthesisUtterance(lastAIResponse);
+    //     utterance.rate = 1;
+    //     utterance.pitch = 1;
+    //     utterance.voice = speechSynthesis
+    //       .getVoices()
+    //       .find((v) => v.lang.includes("en"));
+
+    //     ttsBtn.innerHTML = '<i class="fas fa-stop"></i>';
+
+    //     utterance.onend = () => {
+    //       ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    //     };
+
+    //     speechSynthesis.speak(utterance);
+    //   }
+
+      // Function to add a message to the chat display
+      const addMessageToChat = (role, text) => {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = "flex items-start gap-3 mb-6";
+
+        // For mobile, add smaller gap
+        if (window.innerWidth < 768) {
+          messageDiv.className = "flex items-start gap-2 mb-4";
+        }
+
+        let messageContent = "";
+        if (role === "user") {
+          messageDiv.classList.add("justify-end");
+          messageContent = `
+                <div class="message-user p-4 rounded-lg max-w-2xl order-1">
+                    <p class="whitespace-pre-wrap">${text}</p>
+                </div>
+                <img class="w-10 h-10 rounded-full order-2" src="https://ui-avatars.com/api/?name=User&background=1f2937&color=fff" alt="User Avatar">
+            `;
+        } else {
+          // model
+          lastAIResponse = text; // Store the last AI response for TTS
+          messageContent = `
+                <img class="w-10 h-10 rounded-full" src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true" alt="AI Avatar">
+                <div class="message-ai p-4 rounded-lg max-w-2xl">
+                    <p class="font-bold text-blue-400 mb-1">Rohit Negi AI</p>
+                    <p class="whitespace-pre-wrap">${text}</p>
+                </div>
+            `;
+        }
+
+        messageDiv.innerHTML = messageContent;
+        chatContainer.appendChild(messageDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      };
+
+      // Function to show a typing indicator
+      const showTypingIndicator = () => {
+        const typingDiv = document.createElement("div");
+        typingDiv.id = "typing-indicator";
+        typingDiv.className = "flex items-start gap-3 mb-6";
+        typingDiv.innerHTML = `
+            <img class="w-10 h-10 rounded-full" src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true" alt="AI Avatar">
+            <div class="message-ai p-4 rounded-lg">
+                <div class="flex items-center space-x-1">
+                    <span class="block w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0s;"></span>
+                    <span class="block w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0.2s;"></span>
+                    <span class="block w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0.4s;"></span>
+                </div>
+            </div>
+        `;
+        chatContainer.appendChild(typingDiv);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      };
+
+      // Function to remove the typing indicator
+      const removeTypingIndicator = () => {
+        const indicator = document.getElementById("typing-indicator");
+        if (indicator) {
+          indicator.remove();
+        }
+      };
+
+      // Main function to handle sending a message
+      const handleSendMessage = async () => {
+        const userPrompt = promptInput.value.trim();
+        if (!userPrompt) return;
+
+        if (GEMINI_API_KEY === "YOUR_NEW_GEMINI_API_KEY_HERE") {
+          addMessageToChat(
+            "model",
+            "Bhai, API key set karna bhul gaye kya? Please add your Gemini API key in the script to continue."
+          );
+          return;
+        }
+
+        // 1. Display user's message and clear input
+        addMessageToChat("user", userPrompt);
+        promptInput.value = "";
+        promptInput.style.height = "auto";
+        clearBtn.style.display = "none";
+        sendButton.disabled = true;
+
+        // 2. Add user message to history
+        chatHistory.push({
+          role: "user",
+          parts: [{ text: userPrompt }],
+        });
+
+        // 3. Show typing indicator
+        showTypingIndicator();
+
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              contents: chatHistory,
+              system_instruction: {
+                parts: [
+                  {
+                    text: systemInstructionText,
+                  },
+                ],
+              },
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(
+              errorData.error.message ||
+                `HTTP error! status: ${response.status}`
+            );
+          }
+
+          const data = await response.json();
+
+          // 5. Process the response
+          removeTypingIndicator();
+
+          if (data.candidates && data.candidates.length > 0) {
+            const aiResponse = data.candidates[0].content.parts[0].text;
+            addMessageToChat("model", aiResponse);
+            // Add AI response to history for context in next turn
+            chatHistory.push({
+              role: "model",
+              parts: [{ text: aiResponse }],
+            });
+          } else {
+            // Handle cases where the API returns no candidates
+            const blockReason =
+              data.promptFeedback?.blockReason || "an unknown reason";
+            addMessageToChat(
+              "model",
+              `Dost, I couldn't generate a response for that. It was blocked for ${blockReason}. Please try a different prompt.`
+            );
+          }
+        } catch (error) {
+          console.error("Error:", error);
+          removeTypingIndicator();
+          addMessageToChat(
+            "model",
+            `Oops! Kuch gadbad ho gayi. Error: ${error.message}`
+          );
+        } finally {
+          sendButton.disabled = false;
+          promptInput.focus();
+        }
+      };
+
+      // Initialize the app when DOM is loaded
+      document.addEventListener("DOMContentLoaded", init);
+    </script>
+  </body>
+</html>
