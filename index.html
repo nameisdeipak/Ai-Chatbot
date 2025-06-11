@@ -120,37 +120,39 @@
       }
     </style>
   </head>
-  <body class="dark-mode font-sans flex h-screen ">
-    <!-- Main Chat Area -->
-    <main class="flex-1 flex flex-col chat-area">
-      <!-- Header with dark/light mode toggle -->
-      <header
-        class="flex items-center justify-between p-4 border-b border-gray-700"
-      >
-        <div class="flex items-center space-x-4 header-content">
-          <div class="relative">
-            <img
-              class="w-12 h-12 rounded-full"
-              src="https://www.coderarmy.in/assets/images/rohit_negi.png"
-              alt="Rohit Negi AI"
-            />
-            <span
-              class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 border-2 border-gray-800"
-            ></span>
-          </div>
-          <div>
-            <h2 class="font-bold text-lg">Rohit Negi AI</h2>
-            <p class="text-xs text-green-400">Online</p>
-          </div>
+  <body class="dark-mode font-sans flex flex-col h-screen ">
+    <!-- Header with dark/light mode toggle -->
+    <header
+      class="flex items-center justify-between p-4 border-b border-gray-700 fixed top-0 w-full z-10 bg-[var(--bg-primary)]"
+    >
+      <div class="flex items-center space-x-4 header-content">
+        <div class="relative">
+          <img
+            class="w-12 h-12 rounded-full"
+            src="https://www.coderarmy.in/assets/images/rohit_negi.png"
+            alt="Rohit Negi AI"
+          />
+          <span
+            class="absolute bottom-0 right-0 block h-3 w-3 rounded-full bg-green-400 border-2 border-gray-800"
+          ></span>
         </div>
+        <div>
+          <h2 class="font-bold text-lg">Rohit Negi AI</h2>
+          <p class="text-xs text-green-400">Online</p>
+        </div>
+      </div>
 
-        <!-- Dark/Light mode toggle -->
-        <div class="flex items-center space-x-2">
-          <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-700">
-            <i class="fas fa-moon"></i>
-          </button>
-        </div>
-      </header>
+      <!-- Dark/Light mode toggle -->
+      <div class="flex items-center space-x-2">
+        <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-700">
+          <i class="fas fa-moon"></i>
+        </button>
+      </div>
+    </header>
+
+    
+    <!-- Main Chat Area -->
+    <main class="flex-1 flex flex-col pt-[72px] pb-[120px] ">
 
       <!-- Chat messages container -->
       <div id="chat-container" class="flex-1 p-4 overflow-y-auto">
@@ -166,94 +168,54 @@
         </div>
       </div>
 
-      <!-- Input area -->
-      <div class="input-area p-4 border-t">
-        <!-- <form id="chat-form" class="flex max-md:flex-col items-end space-x-3">
-          <div class="flex-1 relative w-full">
-            <textarea
-              id="prompt-input"
-              class="input-field w-full rounded-lg p-3 outline-none ring-2 ring-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              placeholder="Chat with Rohit bhaiya..."
-              rows="1"
-            ></textarea>
-            <button
-              id="clear-btn"
-              type="button"
-              class="absolute right-2 bottom-[18px] text-gray-400 hover:text-gray-600 hidden"
-            >
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-          <div class="flex items-center justify-start gap-3 max-md:w-full">
-            <button
-              id="send-button"
-              type="submit"
-              class="h-[40px] w-[40px] bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <i class="fas fa-paper-plane"></i>
-            </button>
-            <button
-              id="tts-btn"
-              type="button"
-              class="h-[40px] w-[40px] bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg flex items-center justify-center"
-              title="Read last response"
-            >
-              <i class="fas fa-volume-up"></i>
-            </button>
-            <button
-              id="voice-btn"
-              class="h-[40px] w-[40px] bg-red-600 hover:bg-red-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <i class="fas fa-microphone"></i>
-            </button>
-          </div>
-        </form> -->
-       <form id="chat-form" class="flex flex-col md:flex-row gap-3">
-  <div class="flex-1 relative w-full">
-    <textarea
-      id="prompt-input"
-      class="input-field w-full rounded-lg p-3 outline-none ring-2 ring-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-      placeholder="Chat with Rohit bhaiya..."
-      rows="1"
-    ></textarea>
-    <button
-      id="clear-btn"
-      type="button"
-      class="absolute right-2 bottom-[18px] text-gray-400 hover:text-gray-600 hidden"
-    >
-      <i class="fas fa-times"></i>
-    </button>
-  </div>
-  <div class="flex gap-2 w-full md:w-auto justify-end">
-    <button
-      id="send-button"
-      type="submit"
-      class="h-[40px] w-[40px] bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <i class="fas fa-paper-plane"></i>
-    </button>
-    <button
-      id="tts-btn"
-      type="button"
-      class="h-[40px] w-[40px] bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg flex items-center justify-center"
-      title="Read last response"
-    >
-      <i class="fas fa-volume-up"></i>
-    </button>
-    <button
-      id="voice-btn"
-      class="h-[40px] w-[40px] bg-red-600 hover:bg-red-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-    >
-      <i class="fas fa-microphone"></i>
-    </button>
-  </div>
+    </main>
+    <!-- Input area -->
+    <div class="input-area p-4 border-t fixed bottom-0 w-full z-10 bg-[var(--bg-secondary)]">
+     <form id="chat-form" class="flex flex-col md:flex-row gap-3">
+<div class="flex-1 relative w-full">
+  <textarea
+    id="prompt-input"
+    class="input-field w-full rounded-lg p-3 outline-none ring-2 ring-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+    placeholder="Chat with Rohit bhaiya..."
+    rows="1"
+  ></textarea>
+  <button
+    id="clear-btn"
+    type="button"
+    class="absolute right-2 bottom-[18px] text-gray-400 hover:text-gray-600 hidden"
+  >
+    <i class="fas fa-times"></i>
+  </button>
+</div>
+<div class="flex gap-2 w-full md:w-auto justify-end">
+  <button
+    id="send-button"
+    type="submit"
+    class="h-[40px] w-[40px] bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <i class="fas fa-paper-plane"></i>
+  </button>
+  <button
+    id="tts-btn"
+    type="button"
+    class="h-[40px] w-[40px] bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg flex items-center justify-center"
+    title="Read last response"
+  >
+    <i class="fas fa-volume-up"></i>
+  </button>
+  <button
+    id="voice-btn"
+    class="h-[40px] w-[40px] bg-red-600 hover:bg-red-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+  >
+    <i class="fas fa-microphone"></i>
+  </button>
+</div>
 </form>
 
-        <p class="text-xs text-gray-400 mt-2 text-center">
-          Press Enter to send, Shift+Enter for new line
-        </p>
-      </div>
-    </main>
+      <p class="text-xs text-gray-400 mt-2 text-center">
+        Press Enter to send, Shift+Enter for new line
+      </p>
+    </div>
 
     <script>
       // DOM Elements
@@ -772,6 +734,35 @@ async function readLastResponse() {
   speechSynthesis.speak(utterance);
 }
 
+
+
+      // Read the last AI response
+    //   function readLastResponse() {
+    //     if (!lastAIResponse) {
+    //       addMessageToChat("model", "No response to read yet.");
+    //       return;
+    //     }
+
+    //     if (speechSynthesis.speaking) {
+    //       speechSynthesis.cancel();
+    //       return;
+    //     }
+
+    //     const utterance = new SpeechSynthesisUtterance(lastAIResponse);
+    //     utterance.rate = 1;
+    //     utterance.pitch = 1;
+    //     utterance.voice = speechSynthesis
+    //       .getVoices()
+    //       .find((v) => v.lang.includes("en"));
+
+    //     ttsBtn.innerHTML = '<i class="fas fa-stop"></i>';
+
+    //     utterance.onend = () => {
+    //       ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
+    //     };
+
+    //     speechSynthesis.speak(utterance);
+    //   }
 
       // Function to add a message to the chat display
       const addMessageToChat = (role, text) => {
