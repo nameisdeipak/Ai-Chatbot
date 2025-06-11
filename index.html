@@ -6,9 +6,7 @@
     <title>Rohit Negi - AI Mentor</title>
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Add this to your head section -->
-    <script src="https://sdk.resemble.ai/stable/resemble.js"></script>
+    
     <!-- Font Awesome for icons -->
     <link
       rel="stylesheet"
@@ -122,9 +120,9 @@
       }
     </style>
   </head>
-  <body class="dark-mode font-sans flex h-screen overflow-hidden">
+  <body class="dark-mode font-sans flex h-screen ">
     <!-- Main Chat Area -->
-    <main class="flex-1 flex flex-col chat-area overflow-hidden">
+    <main class="flex-1 flex flex-col chat-area">
       <!-- Header with dark/light mode toggle -->
       <header
         class="flex items-center justify-between p-4 border-b border-gray-700"
@@ -133,7 +131,7 @@
           <div class="relative">
             <img
               class="w-12 h-12 rounded-full"
-              src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true"
+              src="https://www.coderarmy.in/assets/images/rohit_negi.png"
               alt="Rohit Negi AI"
             />
             <span
@@ -158,14 +156,9 @@
       <div id="chat-container" class="flex-1 p-4 overflow-y-auto">
         <!-- Initial Greeting from AI -->
         <div class="flex items-start gap-3 mb-6">
-          <img
-            class="w-10 h-10 rounded-full"
-            src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true"
-            alt="AI Avatar"
-          />
-          <div class="message-ai p-4 rounded-lg max-w-2xl">
+          <div class="message-ai p-4 rounded-lg max-w-2xl border-l border-1 text-left">
             <p class="font-bold text-blue-400 mb-1">Rohit Negi AI</p>
-            <p class="whitespace-pre-wrap">
+            <p class=" text-left">
               Hello dosto, kaise ho? Main hoon Rohit Negi, Apka AI mentor.
               Chalo, maut ka khel shuru karte hai!
             </p>
@@ -175,7 +168,7 @@
 
       <!-- Input area -->
       <div class="input-area p-4 border-t">
-        <form id="chat-form" class="flex max-md:flex-col items-end space-x-3">
+        <!-- <form id="chat-form" class="flex max-md:flex-col items-end space-x-3">
           <div class="flex-1 relative w-full">
             <textarea
               id="prompt-input"
@@ -214,7 +207,48 @@
               <i class="fas fa-microphone"></i>
             </button>
           </div>
-        </form>
+        </form> -->
+       <form id="chat-form" class="flex flex-col md:flex-row gap-3">
+  <div class="flex-1 relative w-full">
+    <textarea
+      id="prompt-input"
+      class="input-field w-full rounded-lg p-3 outline-none ring-2 ring-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+      placeholder="Chat with Rohit bhaiya..."
+      rows="1"
+    ></textarea>
+    <button
+      id="clear-btn"
+      type="button"
+      class="absolute right-2 bottom-[18px] text-gray-400 hover:text-gray-600 hidden"
+    >
+      <i class="fas fa-times"></i>
+    </button>
+  </div>
+  <div class="flex gap-2 w-full md:w-auto justify-end">
+    <button
+      id="send-button"
+      type="submit"
+      class="h-[40px] w-[40px] bg-blue-600 hover:bg-blue-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <i class="fas fa-paper-plane"></i>
+    </button>
+    <button
+      id="tts-btn"
+      type="button"
+      class="h-[40px] w-[40px] bg-purple-600 hover:bg-purple-700 text-white p-2 rounded-lg flex items-center justify-center"
+      title="Read last response"
+    >
+      <i class="fas fa-volume-up"></i>
+    </button>
+    <button
+      id="voice-btn"
+      class="h-[40px] w-[40px] bg-red-600 hover:bg-red-700 text-white font-bold p-3 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+    >
+      <i class="fas fa-microphone"></i>
+    </button>
+  </div>
+</form>
+
         <p class="text-xs text-gray-400 mt-2 text-center">
           Press Enter to send, Shift+Enter for new line
         </p>
@@ -584,11 +618,6 @@ and some time you share aditiya social medial contact.`;
 
         // Theme toggle
         themeToggle.addEventListener("click", toggleTheme);
-
-        // // Sidebar close button
-        // sidebarCloseBtn.addEventListener("click", () => {
-        //   sidebar.classList.remove('active');
-        // });
       }
 
       // Adjust textarea height based on content
@@ -677,10 +706,10 @@ and some time you share aditiya social medial contact.`;
 
       let indianVoice = null;
 
-// Ensure voices are loaded properly
+// Load available voices
 function loadVoices() {
   return new Promise((resolve) => {
-    let voices = speechSynthesis.getVoices();
+    const voices = speechSynthesis.getVoices();
     if (voices.length) return resolve(voices);
 
     speechSynthesis.onvoiceschanged = () => {
@@ -689,7 +718,7 @@ function loadVoices() {
   });
 }
 
-async function readLastResponse(){
+async function readLastResponse() {
   if (!lastAIResponse) {
     alert("No response to read yet.");
     return;
@@ -703,13 +732,27 @@ async function readLastResponse(){
   const voices = await loadVoices();
   console.log("Available voices:", voices.map(v => `${v.name} (${v.lang})`));
 
-  // 🔥 Use Google UK English Male
-  let selectedVoice = voices.find(v =>
-    v.name === "Google UK English Male"
-  );
+  // 1. Try Google UK English Male
+  let selectedVoice = voices.find(v => v.name === "Google UK English Male");
 
+  // 2. Try any en-GB voice (British English)
   if (!selectedVoice) {
-    alert("Google UK English Male not available.");
+    selectedVoice = voices.find(v => v.lang === "en-GB");
+  }
+
+  // 3. Try Indian English voice
+  if (!selectedVoice) {
+    selectedVoice = voices.find(v => v.lang === "en-IN");
+  }
+
+  // 4. Fallback to first English voice
+  if (!selectedVoice) {
+    selectedVoice = voices.find(v => v.lang.startsWith("en"));
+  }
+
+  // 5. If still no voice found, exit
+  if (!selectedVoice) {
+    alert("No English voice available on your browser.");
     return;
   }
 
@@ -730,36 +773,6 @@ async function readLastResponse(){
 }
 
 
-
-
-      // Read the last AI response
-    //   function readLastResponse() {
-    //     if (!lastAIResponse) {
-    //       addMessageToChat("model", "No response to read yet.");
-    //       return;
-    //     }
-
-    //     if (speechSynthesis.speaking) {
-    //       speechSynthesis.cancel();
-    //       return;
-    //     }
-
-    //     const utterance = new SpeechSynthesisUtterance(lastAIResponse);
-    //     utterance.rate = 1;
-    //     utterance.pitch = 1;
-    //     utterance.voice = speechSynthesis
-    //       .getVoices()
-    //       .find((v) => v.lang.includes("en"));
-
-    //     ttsBtn.innerHTML = '<i class="fas fa-stop"></i>';
-
-    //     utterance.onend = () => {
-    //       ttsBtn.innerHTML = '<i class="fas fa-volume-up"></i>';
-    //     };
-
-    //     speechSynthesis.speak(utterance);
-    //   }
-
       // Function to add a message to the chat display
       const addMessageToChat = (role, text) => {
         const messageDiv = document.createElement("div");
@@ -774,21 +787,20 @@ async function readLastResponse(){
         if (role === "user") {
           messageDiv.classList.add("justify-end");
           messageContent = `
-                <div class="message-user p-4 rounded-lg max-w-2xl order-1">
-                    <p class="whitespace-pre-wrap">${text}</p>
+                <div class="message-user p-4 rounded-lg max-w-2xl border-r border-1">
+                    <p class=" text-left">${text}</p>
                 </div>
-                <img class="w-10 h-10 rounded-full order-2" src="https://ui-avatars.com/api/?name=User&background=1f2937&color=fff" alt="User Avatar">
+                
             `;
         } else {
           // model
           lastAIResponse = text; // Store the last AI response for TTS
           messageContent = `
-                <img class="w-10 h-10 rounded-full" src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true" alt="AI Avatar">
-                <div class="message-ai p-4 rounded-lg max-w-2xl">
-                    <p class="font-bold text-blue-400 mb-1">Rohit Negi AI</p>
-                    <p class="whitespace-pre-wrap">${text}</p>
+                             <div class="message-ai p-4 rounded-lg max-w-2xl border-l border-1">
+                    <p class="whitespace-pre-wrap text-left">${text}</p>
                 </div>
             `;
+      
         }
 
         messageDiv.innerHTML = messageContent;
@@ -802,7 +814,7 @@ async function readLastResponse(){
         typingDiv.id = "typing-indicator";
         typingDiv.className = "flex items-start gap-3 mb-6";
         typingDiv.innerHTML = `
-            <img class="w-10 h-10 rounded-full" src="https://ui-avatars.com/api/?name=Rohit+Negi&background=2563eb&color=fff&bold=true" alt="AI Avatar">
+            <img class="w-10 h-10 rounded-full" src="https://www.coderarmy.in/assets/images/rohit_negi.png" alt="AI Avatar">
             <div class="message-ai p-4 rounded-lg">
                 <div class="flex items-center space-x-1">
                     <span class="block w-2 h-2 bg-gray-400 rounded-full animate-pulse" style="animation-delay: 0s;"></span>
